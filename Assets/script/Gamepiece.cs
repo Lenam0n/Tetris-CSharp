@@ -15,6 +15,7 @@ public class Gamepiece : MonoBehaviour
 
     public float stepDelay = 1f;
     public float lockDelay = 0.5f;
+    public bool gameover { get; set; } 
 
     private float stepTime;
     private float lockTime;
@@ -41,37 +42,40 @@ public class Gamepiece : MonoBehaviour
     private void Update()
     {
         this.lockTime += Time.deltaTime;
-
+        this.gameover = gameover;
         this.board.Clear(this);
 
-        if(Input.GetKeyDown(KeyCode.A)) 
-        {
-            Move(Vector2Int.left);
-         }
-        else if(Input.GetKeyDown(KeyCode.D))
-        {
-            Move(Vector2Int.right);
-        }
-        else if (Input.GetKeyDown(KeyCode.S))
-        {
-            Move(Vector2Int.down);
-        }
-        else if (Input.GetKeyDown(KeyCode.Space))
-        {
-            HardDrop();
-        }
-        else if (Input.GetKeyDown(KeyCode.Q))
-        {
-            Rotate(1);
-        }
-        else if (Input.GetKeyDown(KeyCode.E))
-        {
-            Rotate(-1);
-        }
+        if (!this.gameover) { 
 
-        if (Time.time >= this.stepTime)
-        {
-            Step();
+            if(Input.GetKeyDown(KeyCode.A)) 
+            {
+                Move(Vector2Int.left);
+             }
+            else if(Input.GetKeyDown(KeyCode.D))
+            {
+                Move(Vector2Int.right);
+            }
+            else if (Input.GetKeyDown(KeyCode.S))
+            {
+                Move(Vector2Int.down);
+            }
+            else if (Input.GetKeyDown(KeyCode.Space))
+            {
+                HardDrop();
+            }
+            else if (Input.GetKeyDown(KeyCode.Q))
+            {
+                Rotate(1);
+            }
+            else if (Input.GetKeyDown(KeyCode.E))
+            {
+                Rotate(-1);
+            }
+
+            if (Time.time >= this.stepTime)
+            {
+                Step();
+            }
         }
 
         this.board.Set(this);
@@ -92,7 +96,12 @@ public class Gamepiece : MonoBehaviour
     {
         this.board.Set(this);
         this.board.clearLines();
-        this.board.spawnPiece();
+        if (board.IsValidPos(this,new Vector3Int(0,7)))
+        {
+            this.board.spawnPiece();
+        }
+        else { board.GameOver(); }
+        
     }
 
     private void HardDrop()

@@ -1,6 +1,9 @@
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
 using UnityEngine.Tilemaps;
+using TMPro;
+using UnityEditor.Experimental.GraphView;
 
 public class board : MonoBehaviour
 {
@@ -9,6 +12,9 @@ public class board : MonoBehaviour
     public Vector3Int spawnPosition;
     public Gamepiece activePiece { get; private set; }
     public Vector2Int BoardSize = new Vector2Int(10, 20);
+    public TextMeshProUGUI Score_text;
+    private int Score;
+
     public RectInt Bounds {
         get 
         {
@@ -20,6 +26,8 @@ public class board : MonoBehaviour
 
     private void Awake()
     {
+        Score = 0;
+        Score_text.text = Score.ToString();
         this.tilemap = GetComponentInChildren<Tilemap>();
         this.activePiece = GetComponentInChildren<Gamepiece>(); 
 
@@ -33,13 +41,28 @@ public class board : MonoBehaviour
     {
         spawnPiece();
     }
+    public void GameOver()
+    {
+        
+        Debug.Log("tets");
+        Time.timeScale = 0f;
+        activePiece.gameover = true;
+
+
+    }
 
     public void spawnPiece()
+    {
+        initializedPiece();
+        Set(this.activePiece);
+    }
+    public void initializedPiece()
     {
         int random = Random.Range(0, tetrominos.Length);
         TetrominoData data = this.tetrominos[random];
         this.activePiece.Initialize(this, spawnPosition, data);
-        Set(this.activePiece);
+
+        Vector3 initialPosition = transform.position;
     }
 
     public void Set(Gamepiece piece)
@@ -88,23 +111,32 @@ public class board : MonoBehaviour
         RectInt Bounds = this.Bounds;
         int row = Bounds.yMin;
 
+
         while (row < Bounds.yMax) 
         {
             if (isLineFull(row)) { LineClear(row); }
             else{ row++; }
         }
 
+
+        
+
     }
 
     private void LineClear(int row)
     {
+        //hier werden sie gelöscht
         RectInt Bounds = this.Bounds;
         for (int col = Bounds.xMin; col < Bounds.xMax; col++)
         {
             Vector3Int pos = new Vector3Int(col, row, 0);
             this.tilemap.SetTile(pos, null);
         }
+        Score++;
+        Score_text.text = Score.ToString();
 
+
+        //hier fallen die oberen runter
         while (row < Bounds.yMax)
         {
             for (int col = Bounds.xMin; col < Bounds.xMax; col++)
